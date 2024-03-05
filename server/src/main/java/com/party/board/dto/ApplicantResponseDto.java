@@ -1,7 +1,6 @@
 package com.party.board.dto;
 
 
-import com.party.board.entity.Board;
 import com.party.member.entity.Member;
 import lombok.Getter;
 import lombok.Setter;

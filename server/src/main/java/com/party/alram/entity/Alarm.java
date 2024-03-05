@@ -1,13 +1,11 @@
 package com.party.alram.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.party.board.entity.Board;
 import com.party.member.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
 

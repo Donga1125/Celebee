@@ -3,7 +3,6 @@ package com.party.alram.service;
 import com.party.alram.entity.Alarm;
 import com.party.alram.repository.AlarmRepository;
 import com.party.alram.repository.EmitterRepository;
-import com.party.board.entity.Board;
 import com.party.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
