@@ -20,8 +20,10 @@
 
 - **ERD:** <br/> 
 ![2023-09-18_14 45 50](https://github.com/Donga1125/Celebee/assets/96361421/d407fe10-5712-48a6-be50-fb514f9634c4)
+
 - **API 명세서**:
-https://documenter.getpostman.com/view/27566438/2s9Y5YT3fE#2f0b370e-db00-4398-ad98-30c515d21887
+   <a href="https://documenter.getpostman.com/view/27566438/2s9Y5YT3fE#2f0b370e-db00-4398-ad98-30c515d21887"> Postman API Documentation  </a>
+
 
 - **프로젝트 노션 링크** :
   https://rune-ship-1f2.notion.site/6f2bd5a0a6c24b67996a13271f9bcb03
