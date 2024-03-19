@@ -16,6 +16,7 @@
 - **배포 주소**: https://celebee.kro.kr
 
 - **프로젝트 구조**:
+ ![아키텍처](https://github.com/Donga1125/Celebee/assets/96361421/be3bc72e-7b0c-41b0-b413-cb6b4878f79f)
 
 - **ERD:** <br/> 
 ![2023-09-18_14 45 50](https://github.com/Donga1125/Celebee/assets/96361421/d407fe10-5712-48a6-be50-fb514f9634c4)
