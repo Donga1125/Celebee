@@ -26,4 +26,5 @@
 
 
 - **프로젝트 노션 링크** :
-  https://rune-ship-1f2.notion.site/6f2bd5a0a6c24b67996a13271f9bcb03
+  <a href="https://rune-ship-1f2.notion.site/6f2bd5a0a6c24b67996a13271f9bcb03"> Team Notion Link  </a>
+  
