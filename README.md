@@ -34,9 +34,9 @@
   
 |메인페이지|글 상세 페이지|
 |:---:|:---:|
-|<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/6c06f272-beee-4c30-9078-3b938e958e47" width = "350" height="250">|<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/47e1169c-5528-47ac-9fc2-109565daf31d" width = "350" height="250">|
+|<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/6c06f272-beee-4c30-9078-3b938e958e47" width = "375" height="250">|<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/47e1169c-5528-47ac-9fc2-109565daf31d" width = "375" height="250">|
 |<b>글 작성 페이지</b>|<b>마이페이지</b>|
-|<img src = "https://github.com/27Lia/fe-sprint-coz-shopping/assets/117743861/d26394d1-6a03-4773-9b62-bc45a1ab1f35" width = "350" height="250">|<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/a6aec436-671e-4c6f-9a62-4ac750004f92" width = "350" height="250">|
+|<img src = "https://github.com/27Lia/fe-sprint-coz-shopping/assets/117743861/d26394d1-6a03-4773-9b62-bc45a1ab1f35" width = "375" height="250">|<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/a6aec436-671e-4c6f-9a62-4ac750004f92" width = "375" height="250">|
 <br/> 
 <details>
   <summary> 메인페이지 설명 </summary>
@@ -46,6 +46,7 @@
       <li> 'ALL' 카테고리를 기본으로 하며, 카테고리 변경 시 해당하는 모임 출력</li>
       <li> 무한 스코롤으로 구현하여 많은 모임을 노출시킴 </li>
       <li> 모임 이미지에 전환 애니메이션을 적용해 생동감있는 메인 화면을 구성함 </li>
+      <li> 모임 글 제목과 좋아요 수 노출</li>
       </ul>
   </div>
 </details>
@@ -54,7 +55,10 @@
   <summary> 글 상세 페이지 설명 </summary>
    <div markdown="1">
     <ul>
-    <li> </li>
+    <li> 모임에 대한 [날짜, 장소, 금액, 주최자 정보, 참여 인원, 상세 내용] 을 확인할 수 있음</li>
+    <li> 'Join' 버튼을 클릭하여 모임에 참여할 수 있음 </li> 
+    <li> 원활한 모임 진행을 위해 모임 삭제, 수정, 참여 취소 기능은 지원하지 않는 것으로 기획함 </li>
+    <li> 유저 프로필 이미지를 클릭하면 해당 유저의 마이페이지로 화면 전환됨 </li>
       </ul>
   </div>
 </details>
@@ -63,7 +67,10 @@
   <summary> 글 작성 설명 </summary>
    <div markdown="1">
     <ul>
-    <li> </li>
+    <li> 모임 진행 전 인원을 확정하고자 원하는 모임 날짜 2일 전에 자동 마감되도록 기획 </li>
+    <li> [제목, 모임 날짜, 인원, 상세 설명, 카테고리, 모임 장소, 이미지] 를 작성자가 결정할 수 있음 </li>
+    <li> 위 내용을 모두 작성해야 모임 글 생성이 가능함 </li>
+    <li> 선택한 카테고리에 따라 선택할 수 있는 이미지가 변경됨 </li>
       </ul>
   </div>
 </details>
@@ -72,13 +79,17 @@
   <summary> 마이페이지 설명 </summary>
    <div markdown="1">
     <ul>
-    <li> </li>
+    <li> [프로필 이미지 변경, 소개 글 변경, 좋아한 모임 확인, 참여한 모임 확인] 기능을 할 수 있음 </li>
+    <li> 모임 이미지 클릭 시 해당 모임의 상세 페이지로 화면 전환됨 </li>
+    <li> 타인의 마이페이지를 확인할 수 있으며, 해당 유저가 좋아한 모임과 참여한 모임을 확인할 수 있음 </li>
+    <li> 유저 팔로우 기능은 추후 업데이트 예정임 </li>
       </ul>
   </div>
 </details>
 
+<br/> 
 
-## 프로젝트 핵심기술 및 기능
+## 프로젝트에서 사용한 기술
 
 ### Back-end
 ![Spring](https://img.shields.io/badge/spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
@@ -117,4 +128,35 @@
 <br/> 
 
 ## 규칙
+
+#### ✅ git commit 규칙
+|Type|내용|
+|----|---|
+|feat|새로운 기능 추가|
+|fix|버그 수정|
+|docs|문서 수정|
+|style|코드 포맷팅, 세미콜론 누락 (코드변경 x)|
+|refactor|코드 리팩토링|
+
+**사용 예시**
+[직무] Type : 변경 내용
+
+ex) header 컴포넌트 작업 완료 ➡️
+[FE]feat : header component 작업 완료
+
+#### ✅ 배포 및 테스트 규칙
+<li> 매 스프린트 마감일 16시에 빌드 및 배포를 진행하며, 배포 완료 후 2시간동안 테스트를 진행한다. (default) </li>
+<li> 서버 배포 - 백엔드 기능 구현이 완료되면 3인이 기능 테스트 진행 후 배포 진행한다. </li>
+<li> 클라이언트 배포 - 매 스프린트 마감 후 취합하여 진행한다. </li>
+<li> 배포 날짜 또는 시간에 대해 변경이 필요할 시 소통 코어 타임에 공유한다. </li>
+
+#### ✅ 운영/개발 서버 분리
+<li> 리팩토링한 내용(feat_FE/BE) -> dev 브렌치로 업로드 -> 개발 서버에 배포하여 확인 </li>
+<li> 서비스중인 곳에서 버그 수정 필요 시 -> main 브렌치에서 바로 fix or hotfix로 push.  </li>
+<li> 개발 서버에서 테스트 완료하여 서비스 할 사항  -> main 브랜치로 merge -> 운영서버에 배포하여 확인  </li>
+
+## 버전 업데이트 로그
+
+
+## 앞으로의 개발 계획
 
