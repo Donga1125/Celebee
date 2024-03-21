@@ -126,10 +126,6 @@
 ![Zoom](https://img.shields.io/badge/zoom-2D8CFF?style=for-the-badge&logo=zoom&logoColor=white)
 
 <br/> 
-
-## 내가 작업한 기능 설명
-
-
 <br/> 
 
 ## 규칙
