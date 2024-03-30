@@ -16,6 +16,8 @@
   
 - **배포 주소**: https://celebee.kro.kr
 
+         테스트 아이디: test@gmail.com 비밀번호: 1234567Days
+
 - **프로젝트 구조**:
 ![시스템 아키텍처](https://github.com/Donga1125/Celebee/assets/96361421/c840fba6-4d58-4b16-8d3a-03a6f3f0f6dd)
 
