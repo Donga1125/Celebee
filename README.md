@@ -140,13 +140,13 @@
 ### 프로젝트에서 업무 
 프로젝트에서 다음과 같은 기능을 구현했습니다. 
 
-1. **[모임 참여 기능 구현](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)**
-2. **[조건에 따른 모임 마감 처리](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)** 
-3. **[SSE 방식으로 알림 기능 비동기 구현](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)**
-4. **[프로젝트 환경 구축](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)**
-    1. AWS를 이용해 서버 환경 구축 
-    2. Github Action을 이용하여 수동 배포 시 가졌던 문제 해결 
-    3. 운영 서버 안정화 
+1. **모임 참여 기능 구현**
+2. **조건에 따른 모임 마감 처리** 
+3. **SSE 방식으로 알림 기능 비동기 구현**
+4. **프로젝트 환경 구축** <br/> 
+    a. AWS를 이용해 서버 환경 구축 <br/> 
+    b. Github Action을 이용하여 수동 배포 시 가졌던 문제 해결 <br/> 
+    c. 운영 서버 안정화 <br/> 
 
 ## 구현 설명
 
