@@ -138,8 +138,240 @@
 ## 구현 설명
 
 ### 프로젝트에서 업무 
+프로젝트에서 다음과 같은 기능을 구현했습니다. 
 
-### 추가 구현 업무 
+1. **[모임 참여 기능 구현](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)**
+2. **[조건에 따른 모임 마감 처리](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)** 
+3. **[SSE 방식으로 알림 기능 비동기 구현](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)**
+4. **[프로젝트 환경 구축](https://www.notion.so/Celebee-_-79cfb8c0a3fa42a3a5b3e71f8f8a555b?pvs=21)**
+    1. AWS를 이용해 서버 환경 구축 
+    2. Github Action을 이용하여 수동 배포 시 가졌던 문제 해결 
+    3. 운영 서버 안정화 
+
+## 구현 설명
+
+- **사용 기술**
+
+| 구분  | 내용 |
+| --- | --- |
+| Backend | Java 11 ,Spring Boot 2.7.14 , SpringDataJPA , Spring Cloud, Gradle  |
+| DB | H2 , MySQL, AWS RDS |
+| Depoly | AWS EC2, AWS S3, Github Action, Docker |
+| API | Postman |
+
+
+ <details>
+      <summary> 1. 모임 참여 기능 구현 </summary>
+       <div markdown="1">
+
+ Spring Data JPA 가 기본적으로 제공해 주는 쿼리 메서드를 사용해 모임 참여, 모임에 참여한 인원 조회, 내가 참여한 모임 조회를 위한 REST API를 구현했습니다.  
+모임 참여 요청을 받으면 참여 중복 여부와 모임 인원수를 확인한 뒤 검사를 통과하면 모임 참여 기록을 저장하고 모임 참여 여부인 BoardStatus와 모임 인원수를 업데이트합니다.  
+
+모임 상세 페이지에서 참여 인원에 대한 데이터, 마이페이지에서 내가 참여한 모든 모임에 대한 데이터가 필요할 때 클라이언트에서 GET 요청을 받으면 Headers로 전달받은 Authorization 값에서 memberId를 추출하여 해당 ID 값이 저장된 모임 정보를 클라이언트로 전달합니다. 
+
+```java
+//ApplicantService
+//모임 참여
+    public Applicant joinBoard(long boardId, boolean isJoin){
+        //해당 모임에 참여했는지 확인
+        Long memberId = extractMemberId();
+        isJoinAlready(boardId, memberId);
+
+        //모임 참여 로직
+        Applicant applicant = new Applicant();
+        Board board = boardRepository.getById(boardId); //보드 정보 가져오기
+        applicant.setBoard(board);
+        applicant.setBoardImageUrl(board.getImageUrl());
+        Member member = memberRepository.getById(memberId); //멤버 정보 가져오기
+        applicant.setMember(member);
+        applicant.setMemberImageUrl(member.getImageUrl());
+        applicant.setMemberNickname(member.getNickname());
+
+        //현재 모임 참여 인원 수 업데이트
+        if(board.getCurrentNum() < board.getTotalNum()){
+            board.setCurrentNum(board.getCurrentNum()+1);
+
+            if (board.getCurrentNum() == board.getTotalNum()){
+                board.setStatus(Board.BoardStatus.BOARD_COMPLETE);
+                String rootImagePath = board.getImageUrl();
+                String cutPath = rootImagePath.substring(0, rootImagePath.length()-4);
+                System.out.println(cutPath);
+                board.setImageUrl(cutPath+"-closed.png"); //마감 이미지로 변경
+                boardRepository.save(board);
+                //모집 마감 알림 발송
+                notifyCompleted(board);
+            }
+        }else {//인원수 다 찼으면 추가 안함
+            throw new BusinessLogicException(ExceptionCode.NOT_ALLOW_PARTICIPATE);
+        }
+
+        //참여 정보 저장
+        Applicant savedApplicant = applicantRepository.save(applicant);
+        //모임 참여 처리
+        applicant.setJoin(true);
+        //알림 발송
+        notifyApplicant(board);
+        notifyParticipants(board);
+        
+        return savedApplicant;
+    }
+    
+    
+    //모임 참여 중인 모든 인원에게 알림 전송
+    private void notifyParticipants(Board board){
+        alarmService.sendParticipantsNotification(board);
+    }
+
+    //모임 참여 완료 알림 전송 (모임 참여 신청자에게 전송)
+    private void notifyApplicant (Member member, Board board){
+        alarmService.sendApplicantNotification(member,board);
+    }
+
+    //모임 모집 마감 알림 전송
+    private void notifyCompleted(Board board){
+        alarmService.sendCompletedNotification(board);
+    }
+```
+
+ </div>
+    </details>
+
+
+ <details>
+      <summary> 2. 조건에 따른 모임 마감 처리 </summary>
+       <div markdown="1">
+ Spring boot에서 제공하는 Scheduler 기능을 사용하여 모임 마감 기능을 구현했습니다. 일정한 주기로 마감 조건을 충족하는지 확인하고 마감 처리를 진행해야 했기 때문에 Scheduler 기능을 사용했습니다. 모임 마감 처리 조건은 다음과 같습니다. 
+
+- 모임 2일 전
+- 모집 인원이 충족되었을 때
+
+매일 00시에 확인하여 글 작성 시 설정한 Date의 2일 전이라면 BoardStatus를 변경합니다. 
+
+모집 인원이 충족되었는지는 모임 참여 처리 과정에서 확인합니다. 모임 참여를 하며 현재 인원에서 +1 를 해주며, 현재 인원(current num)과 모집 인원(total num)값이 같아지면 BoardStatus를 변경합니다. 
+
+BoardStatus를 *BOARD_RECRUITING → BOARD_COMPLETE* 로 상태 변경하여 모임 마감 처리 후 BoardStatus를 클라이언트로 전달합니다. 또한 BoardStatus 변경 후에 모임 이미지를 마감 이미지로 변경합니다. 
+
+```java
+//BoardService
+   //날짜지난 모임 마감처리
+    @Scheduled(cron = "0 0 0 * * *") //매일 00시에 수행
+    public void checkDate(){
+        LocalDate today = LocalDate.now();
+        List<Board> closedList = findEventsScheduledForDate(today.plus(2, ChronoUnit.DAYS));
+
+        for (Board board : closedList){
+            board.setStatus(Board.BoardStatus.BOARD_COMPLETE);
+            String rootImagePath = board.getImageUrl();
+            String cutPath = rootImagePath.substring(0, rootImagePath.length()-4);
+            System.out.println(cutPath);
+            board.setImageUrl(cutPath+"-closed.png");
+            boardRepository.save(board);
+            //알림 발송
+            notifyDeadline(board);
+        }
+    }
+    
+    //해당 날짜에 예정된 모임 검색(이메일 발송 관련 메서드)
+    public List<Board> findEventsScheduledForDate(LocalDate eventDate ) {
+        //BoardStatus가 모집중 상태인 모임만 반환
+        return boardRepository.findByDateAndStatus(eventDate, Board.BoardStatus.BOARD_RECRUITING);
+    }
+```
+
+ </div>
+    </details>
+
+
+ <details>
+      <summary> 3. SSE 방식으로 알림 기능 비동기 구현 </summary>
+       <div markdown="1">
+       </br>
+ 사용자가 알림을 삭제하지 않았다면 알림 GET 요청 시 지난 알림들을 모두 보내주고, 특정 이벤트 발생 시 사용자에게 알림을 보내야 했습니다. 따라서 실시간으로 서버에서 클라이언트로 데이터를 보내줄 수 있는 장점을 가진 SSE(Server-Sent-Events) 방식으로 구현했습니다. 알림 발송 조건은 다음과 같습니다. 
+
+- 모임 글 작성이 완료되었을 때
+- 새로운 사용자가 모임에 참여했을 때 - 기존에 모임에 참여한 모든 인원에게 알림 발송
+- 모임이 마감되었을 때
+
+사용자가 로그인하면 클라이언트에서 알림 구독 요청을 보냅니다. 
+
+구독 요청 전 발생하여 누락된 알림이 있는지 확인하고, 누락된 알림을 포함해 구독이 되어있는 동안 조건을 충족하면 알림을 보내줍니다. 
+
+```java
+//alaramService
+    //클라가 구독을 위해 호출하는 메서드
+    public SseEmitter subscribe(Long memberId, String lastEventId) {
+        String id = makeTimeIncludedId(memberId);
+        SseEmitter emitter = emitterRepository.save(id, new SseEmitter(DEFAULT_TIMEOUT));
+        //emitter 가 완료될 때 emitter를 삭제 (모든 데이터가 성공적으로 전송된 상태)
+        emitter.onCompletion(() -> emitterRepository.deleteById(id));
+        //emitter 가 타임아웃되었으면 emitter 삭제 (지정된 시간동안 어떤 이벤트도 전송 x)
+        emitter.onTimeout(() -> emitterRepository.deleteById(id));
+
+       //503 에러 방지하고자 더미 이벤트 전달
+        sendToClient(emitter, id, "EventStream Created. [memberId=" + memberId + "]");
+
+        //클라가 미수신한 event가 존재할 경우 전송 (유실 방지)
+        if (hasLostData(lastEventId)){
+            sendLostdata(lastEventId, memberId, emitter);
+        }
+
+        return emitter;
+    }
+
+    /**
+     * 알림 생성, 전송 메서드
+     * 사용자의 모든 알람을 읽음처리
+     */
+    @Async
+    @Transactional
+    public void sendAlarm(Member member, Board board, Alarm.AlarmStatus alarmStatus, String content){
+        Alarm alarm = Alarm.create(member, board, alarmStatus,content);
+        alarmRepository.save(alarm);
+
+        Map<String, SseEmitter> sseEmitters = emitterRepository.findAllEmittersStartWithByMemberId(member.getId());
+        String eventId = makeTimeIncludedId(member.getId());
+        System.out.println(eventId);
+
+        sseEmitters.forEach((key, emitter) -> {
+            //데이터 캐시 저장 (유실 데이터 처리를 위해)
+            emitterRepository.saveEventCache(key,alarm);
+            //데이터 전송
+            sendToClient(emitter,eventId, content);
+        });
+    }
+```
+
+![스크린샷 2024-03-29 09.40.10.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/c52d3ba8-5d60-4225-b490-d52786f48aed/35a33753-75ca-43e4-9c52-e02c1504f233/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2024-03-29_09.40.10.png)
+ </div>
+    </details>
+
+
+ <details>
+      <summary> 4. 프로젝트 환경 구축 </summary>
+       <div markdown="1">
+       </br>
+
+1. **AWS를 이용해 서버 환경 구축** 
+    
+     AWS는 많은 점유율을 차지하고 있기 때문에 관련 자료들이 많고, 클라우드 서버를 처음 구축하는 과정에서 참고할 수 있는 자료가 많은 것을 큰 장점으로 생각하여 AWS를 사용했습니다. AWS EC2 와 RDS를 이용해 서버 환경을 구축하였으며, S3 버킷을 2개 구성하여 프론트 배포와 파일 서버로 사용하였습니다. 
+    
+    또한, 동적 콘텐츠 로딩 시간 단축과 트래픽 급증을 대응하기 위해 AWS CloudFront를 적용하여 페이지 로드 시간 515ms → 84ms 단축했습니다. 
+    
+    내 도메인 한국에서 도메인 주소를 등록하고 AWS route53을 이용해 CloudFront의 주소를 변경하여 프로젝트에 DNS를 적용했습니다. 
+    
+2. **Github Action을 이용하여 수동 배포 시 가졌던 문제 해결** 
+    
+     이전 Stackoverflow 클론 코딩 프로젝트를 하며 수동으로 jar 파일을 빌드하여 AWS EC2로 옮긴 후 서버를 배포했는데, 빌드 및 배포 과정에서 개발자의 실수로 발생하는 문제로 배포까지 많은 시간이 소요되는 문제가 있었습니다. 배포까지 시간을 단축하기 위해 Github Action을 이용해 CI/CD를 적용했습니다. 
+    
+    백엔드의 경우 도커 이미지로 jar 파일을 빌드하여 Ec2 에서 도커 컨테이너를 실행하는 과정으로 서버를 배포했고, 프론트엔드의 경우 main 브렌치를 기준으로 빌드한 뒤, S3 버킷으로 배포했습니다. 
+    
+    그 결과로 최근 10개 서버 배포를 기준으로 CI/CD 과정에 평균 1분 32초 소요되도록 단축했습니다. 
+    
+3. **운영 서버 안정화** 
+    
+     필수 기능 개발을 백엔드가 먼저 완료하여 추후 개발 예정으로 정한 항목을 먼저 작업하게 되었습니다. 이때 서버 신규 기능 추가로 운영에 의도하지 않은 문제가 생기는 것을 방지하기 위해 운영과 개발 서버를 분리 작업했습니다. 개발 서버 또한 AWS 를 이용해 운영 서버와 동일한 스펙으로 구성했으며, 신규 기능을 개발 서버에 먼저 배포하여 기능을 확인한 뒤 문제가 없으면 main 브렌치로 merge하여 운영 서버에 배포했습니다. 이에 따라 사이드 이펙트에 대한 부담을 덜고 알림 기능을 작업할 수 있었습니다. 현업에서 여러 대의 서버를 분리해 운영하는 과정과 서버 한대가 가지는 부담을 줄일 수 있는 긍정적인 이유를 직접 느낄 수 있는 경험이었습니다.
+  </div>
+    </details>
 
 <br/> 
 
