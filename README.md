@@ -17,6 +17,7 @@
 - **배포 주소**: https://celebee.kro.kr
 
          테스트 아이디: test@gmail.com 비밀번호: 1234567Days
+        ⛔️⛔️ 현재 AWS ELB를 제거하면서 생긴 CORS 오류 해결 중으로 사이트 접속이 원활하지 않을 수 있습니다. (2024.04.30 ~) ⛔️⛔️
 
 - **프로젝트 구조**:
 ![시스템 아키텍처](https://github.com/Donga1125/Celebee/assets/96361421/c840fba6-4d58-4b16-8d3a-03a6f3f0f6dd)
