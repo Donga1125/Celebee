@@ -4,6 +4,7 @@ import com.party.alram.entity.Alarm;
 import com.party.alram.service.AlarmService;
 import com.party.board.entity.Applicant;
 import com.party.board.repository.ApplicantRepository;
+import com.party.board.repository.BoardRepository;
 import com.party.exception.BusinessLogicException;
 import com.party.exception.ExceptionCode;
 import com.party.member.entity.Member;
